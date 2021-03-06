@@ -144,20 +144,20 @@ FileWriter* FileWriter::instance = nullptr;
 DataBaseWriter* DataBaseWriter::instance = nullptr;
 
 int main(){
-    Log EventLoger;
+    Log EventLogger;
     FileWriter *TxtWriter = FileWriter::createInstance();
     DataBaseWriter *DBWriter = DataBaseWriter::createInstance();
 
-    // adding subsriber to EventLoger's vector
-    EventLoger.AddSubscriber(TxtWriter);
-    EventLoger.AddSubscriber(DBWriter);
+    // adding subsriber to EventLogger's vector
+    EventLogger.AddSubscriber(TxtWriter);
+    EventLogger.AddSubscriber(DBWriter);
 
     // writing data (to DataBase and txt file)
-    EventLoger.LogToSubscribers(1234, "first pass");
+    EventLogger.LogToSubscribers(1234, "first pass");
     // erasing TxtWriter from subscribers
-    EventLoger.EraseSubscriber(TxtWriter);
+    EventLogger.EraseSubscriber(TxtWriter);
     // writing data (to DataBase)
-    EventLoger.LogToSubscribers(12345678, "second pass");
+    EventLogger.LogToSubscribers(12345678, "second pass");
 
 
     return 0;
