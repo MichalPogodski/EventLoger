@@ -148,7 +148,7 @@ int main(){
     FileWriter *TxtWriter = FileWriter::createInstance();
     DataBaseWriter *DBWriter = DataBaseWriter::createInstance();
 
-    // adding subsriber to EventLogger's vector
+    // adding subscribers to EventLogger's vector
     EventLogger.AddSubscriber(TxtWriter);
     EventLogger.AddSubscriber(DBWriter);
 
