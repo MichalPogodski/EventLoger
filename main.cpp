@@ -12,7 +12,6 @@
 using namespace std;
 
 
-
 class DataWriter {
 
     public:
@@ -44,7 +43,6 @@ class FileWriter: public DataWriter{
             txtfile <<ID << ", "<<info <<endl;
             txtfile.close();
         }
-
 };
 
 
@@ -91,8 +89,8 @@ class DataBaseWriter: public DataWriter{
                 txtfile.close();
             }
         }
-
 };
+
 
 
 class Log{
@@ -117,7 +115,6 @@ class Log{
                 }
             }
         }
-
 };
 
 
