@@ -12,19 +12,34 @@
 using namespace std;
 
 
+
 class DataWriter {
+
     public:
-      virtual void WriteData(int ID, string info/*, string path*/) = 0;
+        virtual void WriteData(int ID, string info) = 0;
 };
 
 
+
 class FileWriter: public DataWriter{
+
+    private:
+        FileWriter(){
+            path = string(get_current_dir_name()) + "/Data/Events.txt";
+        }
+
     public:
         ofstream txtfile;
         string path;
+        static FileWriter* instance;
 
-        void WriteData(int ID, string info/*, string path*/){
-            path = string(get_current_dir_name()) + "/Data/Events.txt";
+        static FileWriter* createInstance(){
+              if(instance == nullptr)
+                  instance = new FileWriter();
+              return instance;
+          }
+
+        void WriteData(int ID, string info){
             txtfile.open(path, fstream::app);
             txtfile <<ID << ", "<<info <<endl;
             txtfile.close();
@@ -33,15 +48,28 @@ class FileWriter: public DataWriter{
 };
 
 
+
 class DataBaseWriter: public DataWriter{
+
+    private:
+        DataBaseWriter(){
+            path = string(get_current_dir_name()) + "/Data/DataBaseErrors.txt";
+        }
+
     public:
         ofstream txtfile;
         string path;
+        static DataBaseWriter* instance;
 
-        void WriteData(int ID, string info/*, string path*/){
+        static DataBaseWriter* createInstance() {
+              if(instance == nullptr)
+                  instance = new DataBaseWriter();
+              return instance;
+        }
+
+        void WriteData(int ID, string info){
             sqlite3 *db;
             sqlite3_open("Data/Events.db", & db);
-             path = string(get_current_dir_name()) + "/Data/DataBaseErrors.txt";
 
             string createQuery = "CREATE TABLE IF NOT EXISTS events (userid INTEGER, info TEXT);";
             sqlite3_stmt *createStmt;
@@ -68,39 +96,45 @@ class DataBaseWriter: public DataWriter{
 
 
 class Log{
-public:
-    vector<DataWriter*> subscribers;
 
-    void LogToSubscribers(int ID, string info){
-        for (int i = 0; i < subscribers.size(); ++i) {
-            subscribers[i] -> WriteData(ID, info);
-        }
-    }
+    public:
+        vector<DataWriter*> subscribers;
 
-    void AddSubscriber(DataWriter* sub){
-        subscribers.push_back(sub);
-    }
-
-    void EraseSubscriber(DataWriter* sub){
-//        subscribers.erase(remove(subscribers.begin(), subscribers.end(), sub), subscribers.end());
-        for (int i = 0; i < subscribers.size(); ++i) {
-            if (typeid(subscribers[i]).name() == typeid(sub).name()){
-                subscribers.erase(subscribers.begin()+i);
+        void LogToSubscribers(int ID, string info){
+            for (int i = 0; i < subscribers.size(); ++i) {
+                subscribers[i] -> WriteData(ID, info);
             }
         }
-    }
+
+        void AddSubscriber(DataWriter* sub){
+            subscribers.push_back(sub);
+        }
+
+        void EraseSubscriber(DataWriter* sub){
+            for (int i = 0; i < subscribers.size(); ++i) {
+                if (typeid(subscribers[i]).name() == typeid(sub).name()){
+                    subscribers.erase(subscribers.begin()+i);
+                }
+            }
+        }
 
 };
 
 
+
+FileWriter* FileWriter::instance = nullptr;
+DataBaseWriter* DataBaseWriter::instance = nullptr;
+
 int main(){
     Log EventLoger;
+    FileWriter *TxtWriter = FileWriter::createInstance();
+    DataBaseWriter *DBWriter = DataBaseWriter::createInstance();
 
-    EventLoger.AddSubscriber(new FileWriter);
-    EventLoger.AddSubscriber(new DataBaseWriter);
+    EventLoger.AddSubscriber(TxtWriter);
+    EventLoger.AddSubscriber(DBWriter);
 
     EventLoger.LogToSubscribers(1234, "first pass");
-    EventLoger.EraseSubscriber(new FileWriter);
+    EventLoger.EraseSubscriber(TxtWriter);
     EventLoger.LogToSubscribers(12345678, "second pass");
 
 
